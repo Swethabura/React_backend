@@ -55,52 +55,35 @@ exports.addProfileData = async (req, res) => {
   }
 };
 
-exports.savePost = async (req, res) => {
+exports.unsavePost = async (req, res) => {
   try {
     const { accountUsername, postId } = req.body;
 
-    // Check if the post exists
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+    console.log("Received in API:", req.body); // 🔍 Debugging incoming request
+
+    if (!accountUsername || !postId) {
+      return res.status(400).json({ message: "Missing accountUsername or postId" });
     }
 
-    // Find user profile using accountUsername
     const userProfile = await UserProfile.findOne({ accountUsername });
 
     if (!userProfile) {
+      console.log(" User not found in DB for username:", accountUsername); // Debugging
       return res.status(404).json({ message: "User profile not found" });
     }
 
-    // Check if post is already saved
-    if (userProfile.savedPosts.includes(postId)) {
-      return res.status(400).json({ message: "Post already saved" });
-    }
+    console.log("✅ User found:", userProfile);
 
-    // Save the post in the user's profile
-    userProfile.savedPosts.push(postId);
+    userProfile.savedPosts = userProfile.savedPosts.filter(id => id.toString() !== postId);
     await userProfile.save();
 
-    res.status(200).json({ message: "Post saved successfully", savedPosts: userProfile.savedPosts });
+    res.status(200).json({
+      message: "Post unsaved successfully",
+      savedPosts: userProfile.savedPosts
+    });
+
   } catch (error) {
-    console.error("Error saving post:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-// Unsave a post
-exports.unsavePost = async (req, res) => {
-  try {
-    const { userId, postId } = req.body;
-
-    let user = await UserProfile.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    user.savedPosts = user.savedPosts.filter(id => id.toString() !== postId);
-    await user.save();
-
-    res.status(200).json({ message: "Post unsaved successfully", savedPosts: user.savedPosts });
-  } catch (error) {
+    console.error("Error in unsavePost:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -142,32 +125,6 @@ exports.unsaveAnswer = async (req, res) => {
     await answer.save();
 
     res.status(200).json({ message: "Answer unsaved successfully", savedBy: answer.savedBy });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// Get saved posts
-exports.getSavedPosts = async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    let user = await UserProfile.findById(userId).populate("savedPosts");
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    res.status(200).json({ savedPosts: user.savedPosts });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// Get saved answers
-exports.getSavedAnswers = async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    let answers = await Answer.find({ savedBy: userId });
-    res.status(200).json({ savedAnswers: answers });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

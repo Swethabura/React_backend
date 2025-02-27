@@ -9,7 +9,8 @@ const storage = multer.diskStorage({
     cb(null, "uploads"); // Save files in the "uploads" folder
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname); // Rename file to avoid conflicts
+    const filename = `${Date.now()}-${file.originalname}`;
+    cb(null, filename); // Rename file to avoid conflicts
   },
 });
 
@@ -22,7 +23,7 @@ router.post("/upload-url", upload.single("profilePic"), (req, res) => {
   }
 
   // Normalize path for frontend usage
-  const fileUrl = `/uploads/${req.file.filename}`;
+  const fileUrl = `${apiUrl}/public/uploads/${response.data.filePath}`;
 
   res.json({
     message: "File uploaded successfully",

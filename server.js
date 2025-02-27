@@ -25,6 +25,8 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/public", publicRoutes); 
 
+// app.use("/public/uploads", express.static("uploads"));
+
 app.listen(PORT,()=>{
     console.log(`Server is running at ${BASE_URL}`)
 });
