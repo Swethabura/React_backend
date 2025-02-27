@@ -55,11 +55,44 @@ exports.addProfileData = async (req, res) => {
   }
 };
 
-exports.unsavePost = async (req, res) => {
+exports.savePost = async (req, res) => {
   try {
     const { accountUsername, postId } = req.body;
 
-    console.log("Received in API:", req.body); // 🔍 Debugging incoming request
+    // Check if the post exists
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    // Find user profile using accountUsername
+    const userProfile = await UserProfile.findOne({ accountUsername });
+
+    if (!userProfile) {
+      return res.status(404).json({ message: "User profile not found" });
+    }
+
+    // Check if post is already saved
+    if (userProfile.savedPosts.includes(postId)) {
+      return res.status(400).json({ message: "Post already saved" });
+    }
+
+    // Save the post in the user's profile
+    userProfile.savedPosts.push(postId);
+    await userProfile.save();
+
+    res.status(200).json({ message: "Post saved successfully", savedPosts: userProfile.savedPosts });
+  } catch (error) {
+    console.error("Error saving post:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.unsavePost = async (req, res) => {
+  try {
+    const { accountUsername, postId } = req.query; // ✅ Change to `req.query`
+    
+    console.log("Received in API:", { accountUsername, postId });
 
     if (!accountUsername || !postId) {
       return res.status(400).json({ message: "Missing accountUsername or postId" });
@@ -68,11 +101,9 @@ exports.unsavePost = async (req, res) => {
     const userProfile = await UserProfile.findOne({ accountUsername });
 
     if (!userProfile) {
-      console.log(" User not found in DB for username:", accountUsername); // Debugging
+      console.log("🔴 User not found in DB for username:", accountUsername);
       return res.status(404).json({ message: "User profile not found" });
     }
-
-    console.log("✅ User found:", userProfile);
 
     userProfile.savedPosts = userProfile.savedPosts.filter(id => id.toString() !== postId);
     await userProfile.save();
@@ -87,6 +118,7 @@ exports.unsavePost = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // Save an answer
 exports.saveAnswer = async (req, res) => {
