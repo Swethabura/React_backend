@@ -10,6 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const PORT = process.env.PORT || 5000;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+
 app.get("/", (req,res)=>{
     res.send("API is running...");
 });
@@ -22,6 +25,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/public", publicRoutes); 
 
-app.listen(5000,()=>{
-    console.log("server is running...")
+app.listen(PORT,()=>{
+    console.log(`Server is running at ${BASE_URL}`)
 });
