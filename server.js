@@ -21,9 +21,9 @@ const authRoutes = require("./routes/authRoutes.js");
 const adminRoutes = require("./routes/adminRoutes.js");
 const publicRoutes = require("./routes/publicRoutes.js"); 
 
-app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/public", publicRoutes); 
+app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
+app.use("/public", publicRoutes); 
 
 app.listen(PORT,()=>{
     console.log(`Server is running at ${BASE_URL}`)
