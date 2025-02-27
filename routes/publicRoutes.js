@@ -12,7 +12,7 @@ const {
   addAnswerComment,
   voteAnswer,
 } = require("../controllers/answerController.js");
-const { getProfileData, addProfileData } = require("../controllers/profileController.js");
+const { getProfileData, addProfileData, savePost, unsavePost, saveAnswer, unsaveAnswer, getSavedPosts, getSavedAnswers, getMyPosts } = require("../controllers/profileController.js");
 const uploadRouter = require("./uploads.js");
 
 const router = express.Router();
@@ -31,6 +31,14 @@ router.post("/post/:postId/comments", addPostComment);
 router.post("/answers/:answerId/comments", addAnswerComment);
 router.get("/profile/:accountUsername", getProfileData);
 router.put("/profile", addProfileData);
+router.post("/profile/save-post", savePost);
+router.post("/profile/unsave-post", unsavePost);
+router.post("/profile/save-answer", saveAnswer);
+router.post("/profile/unsave-answer", unsaveAnswer);
+
+router.get("/profile/saved-posts/:userId", getSavedPosts);
+router.get("/profile/saved-answers/:userId", getSavedAnswers);
+router.get("/profile/my-posts/:userId", getMyPosts);
 
 // Mount the uploadRouter under /profile-pic
 router.use("/profile-pic", uploadRouter);
