@@ -1,6 +1,7 @@
 const UserProfile = require("../models/Profile");
 const Post = require("../models/Post");
 const Answer = require("../models/Answer");
+const UserCollection = require("../models/UserCollection")
 
 // Fetch profile
 exports.getProfileData = async (req, res) => {
@@ -63,7 +64,6 @@ if (profilePic && typeof profilePic !== "string") {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 exports.savePost = async (req, res) => {
   try {
