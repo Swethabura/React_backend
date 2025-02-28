@@ -56,6 +56,7 @@ if (profilePic && typeof profilePic !== "string") {
     });
 
     await newProfile.save();
+
     res.json({ message: "Profile created successfully", profile: newProfile });
   } catch (error) {
     console.error("Error updating/creating profile:", error);
@@ -121,9 +122,12 @@ exports.unsavePost = async (req, res) => {
     userProfile.savedPosts = userProfile.savedPosts.filter(id => id.toString() !== postId);
     await userProfile.save();
 
+    const updatedProfile = await UserProfile.findOne({ accountUsername }).populate("savedPosts");
+
+    
     res.status(200).json({
       message: "Post unsaved successfully",
-      savedPosts: userProfile.savedPosts
+      savedPosts: updatedProfile.savedPosts
     });
 
   } catch (error) {
