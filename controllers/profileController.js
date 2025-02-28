@@ -25,25 +25,33 @@ exports.getProfileData = async (req, res) => {
 // Update profile
 exports.addProfileData = async (req, res) => {
   try {
-    const { accountUsername, gender, username, ...restData } = req.body; // Extract username separately
+    const { accountUsername, gender, username, profilePic, ...restData } = req.body;
 
-    let profile = await UserProfile.findOne({ accountUsername }); // Find by accountUsername
+    let profile = await UserProfile.findOne({ accountUsername });
 
     if (profile) {
-      // If profile exists, update it
+      const updatedData = { username, gender, ...restData };
+
+      // Ensure profilePic is a string URL, not binary data
+if (profilePic && typeof profilePic !== "string") {
+  return res.status(400).json({ message: "Invalid profile picture format" });
+}
+
       profile = await UserProfile.findOneAndUpdate(
-        { accountUsername }, // Ensure this searches correctly
-        { username, ...restData, gender }, // Allow username updates
+        { accountUsername },
+        updatedData,
         { new: true }
       );
+
       return res.json({ message: "Profile updated successfully", profile });
     }
 
     // If profile doesn't exist, create a new one
     const newProfile = new UserProfile({
-      accountUsername, // Store permanent identifier
-      username, // Allow changeable username
+      accountUsername,
+      username,
       gender,
+      profilePic: typeof profilePic === "string" ? profilePic : "", // Store only URL
       ...restData,
     });
 
@@ -54,6 +62,7 @@ exports.addProfileData = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.savePost = async (req, res) => {
   try {
@@ -88,11 +97,15 @@ exports.savePost = async (req, res) => {
   }
 };
 
+// unsave the post
 exports.unsavePost = async (req, res) => {
   try {
-    const { accountUsername, postId } = req.query; // ✅ Change to `req.query`
+    console.log("Full request body received in backend:", req.body); //  Log entire request body
+
+    const { accountUsername, postId } = req.body;
     
-    console.log("Received in API:", { accountUsername, postId });
+    console.log("Extracted accountUsername:", accountUsername); 
+    console.log("Extracted postId:", postId);
 
     if (!accountUsername || !postId) {
       return res.status(400).json({ message: "Missing accountUsername or postId" });
@@ -101,7 +114,7 @@ exports.unsavePost = async (req, res) => {
     const userProfile = await UserProfile.findOne({ accountUsername });
 
     if (!userProfile) {
-      console.log("🔴 User not found in DB for username:", accountUsername);
+      console.log("User not found in DB for username:", accountUsername);
       return res.status(404).json({ message: "User profile not found" });
     }
 
@@ -119,28 +132,30 @@ exports.unsavePost = async (req, res) => {
   }
 };
 
-
 // Save an answer
 exports.saveAnswer = async (req, res) => {
   try {
-    const { userId, answerId } = req.body;
+    const { accountUsername, answerId } = req.body;
 
-    let user = await UserProfile.findById(userId);
+    let user = await UserProfile.findOne({ accountUsername });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    let answer = await Answer.findById(answerId);
-    if (!answer) return res.status(404).json({ message: "Answer not found" });
-
-    if (!answer.savedBy.includes(userId)) {
-      answer.savedBy.push(userId);
-      await answer.save();
+    // Check if the answer is already saved
+    const isAlreadySaved = user.savedPosts.includes(answerId);
+    if (isAlreadySaved) {
+      return res.status(200).json({ message: "Answer already saved" });
     }
 
-    res.status(200).json({ message: "Answer saved successfully", savedBy: answer.savedBy });
+    // Save the answer
+    user.savedPosts.push(answerId);
+    await user.save();
+
+    res.status(200).json({ message: "Answer saved successfully", savedPosts: user.savedPosts });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 // Unsave an answer
 exports.unsaveAnswer = async (req, res) => {
