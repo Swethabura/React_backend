@@ -129,3 +129,92 @@ exports.unsavePost = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// save the answer
+exports.saveAnswer = async (req, res) => {
+  try {
+    const { accountUsername, answerId } = req.body;
+
+    // Check if the user exists in UserProfile DB
+    const userProfile = await UserProfile.findOne({ accountUsername });
+
+    if (!userProfile) {
+      return res.status(404).json({ message: "User profile not found" });
+    }
+
+    // Check if the answer exists
+    const answer = await Answer.findById(answerId);
+    if (!answer) {
+      return res.status(404).json({ message: "Answer not found" });
+    }
+
+    // Check if user exists in User Collection (where we store saved answers)
+    let user = await UserCollection.findOne({ accountUsername });
+
+    // If user doesn't exist in User Collection, create a new document
+    if (!user) {
+      user = new UserCollection({
+        accountUsername,
+        savedPosts: [],
+        savedAnswers: [],
+        myPosts: [],
+        myAnswers: [],
+      });
+    }
+
+    // Check if the answer is already saved
+    const alreadySaved = user.savedAnswers.some(
+      (savedAnswer) => savedAnswer._id.toString() === answerId
+    );
+
+    if (alreadySaved) {
+      return res.status(400).json({ message: "Answer already saved" });
+    }
+
+    // Save the answer
+    user.savedAnswers.unshift(answer);
+    await user.save();
+
+    res
+      .status(200)
+      .json({
+        message: "Answer saved successfully",
+        savedAnswers: user.savedAnswers,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error saving answer", error: error.message });
+  }
+};
+
+// unsave the answer
+exports.unsaveAnswer = async (req, res) => {
+  try {
+    const { accountUsername, answerId } = req.body;
+
+    // Check if the user exists in User Collection
+    const user = await UserCollection.findOne({ accountUsername });
+
+    if (!user) {
+      return res.status(404).json({ message: "User collection not found" });
+    }
+
+    // Filter out the answer to remove it
+    user.savedAnswers = user.savedAnswers.filter(
+      (savedAnswer) => savedAnswer._id.toString() !== answerId
+    );
+
+    await user.save();
+    res
+      .status(200)
+      .json({
+        message: "Answer unsaved successfully",
+        savedAnswers: user.savedAnswers,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error unsaving answer", error: error.message });
+  }
+};

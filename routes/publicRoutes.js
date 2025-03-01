@@ -12,9 +12,9 @@ const {
   addAnswerComment,
   voteAnswer,
 } = require("../controllers/answerController.js");
-const { getProfileData, addProfileData,  getMyPosts } = require("../controllers/profileController.js"); //savePost, unsavePost, saveAnswer, unsaveAnswer,
+const { getProfileData, addProfileData, getMyPosts } = require("../controllers/profileController.js"); //savePost, unsavePost, saveAnswer, unsaveAnswer,
 const uploadRouter = require("./uploads.js");
-const {getUserCollection, savePost, unsavePost} = require("../controllers/savedCollectionController.js");
+const {getUserCollection, savePost, unsavePost, saveAnswer, unsaveAnswer} = require("../controllers/savedCollectionController.js");
 
 
 const router = express.Router();
@@ -33,17 +33,12 @@ router.post("/post/:postId/comments", addPostComment);
 router.post("/answers/:answerId/comments", addAnswerComment);
 router.get("/profile/:accountUsername", getProfileData);
 router.put("/profile", addProfileData);
-
 router.get("/user-collection/:accountUsername", getUserCollection);
-
-// router.post("/profile/save-post", savePost);
-// router.post("/profile/unsave-post", unsavePost);
-// router.post("/profile/save-answer", saveAnswer);
-// router.post("/profile/unsave-answer", unsaveAnswer);
-
-router.get("/profile/my-posts/:userId", getMyPosts);
 router.post("/user-collection/save-post", savePost);
 router.post("/user-collection/unsave-post", unsavePost);
+router.post("/user-collection/save-answer", saveAnswer);
+router.post("/user-collection/unsave-answer", unsaveAnswer);
+router.get("/profile/my-posts/:userId", getMyPosts);
 
 
 // Mount the uploadRouter under /profile-pic
