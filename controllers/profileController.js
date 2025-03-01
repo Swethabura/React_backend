@@ -1,7 +1,7 @@
 const UserProfile = require("../models/Profile");
 const Post = require("../models/Post");
 const Answer = require("../models/Answer");
-const UserCollection = require("../models/UserCollection")
+
 
 // Fetch profile
 exports.getProfileData = async (req, res) => {
