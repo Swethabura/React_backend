@@ -12,7 +12,7 @@ const {
   addAnswerComment,
   voteAnswer,
 } = require("../controllers/answerController.js");
-const { getProfileData, addProfileData, getMyPosts } = require("../controllers/profileController.js"); //savePost, unsavePost, saveAnswer, unsaveAnswer,
+const { getProfileData, addProfileData } = require("../controllers/profileController.js"); 
 const uploadRouter = require("./uploads.js");
 const {getUserCollection, savePost, unsavePost, saveAnswer, unsaveAnswer} = require("../controllers/savedCollectionController.js");
 
@@ -38,7 +38,6 @@ router.post("/user-collection/save-post", savePost);
 router.post("/user-collection/unsave-post", unsavePost);
 router.post("/user-collection/save-answer", saveAnswer);
 router.post("/user-collection/unsave-answer", unsaveAnswer);
-router.get("/profile/my-posts/:userId", getMyPosts);
 
 
 // Mount the uploadRouter under /profile-pic
