@@ -218,3 +218,24 @@ exports.unsaveAnswer = async (req, res) => {
       .json({ message: "Error unsaving answer", error: error.message });
   }
 };
+
+// Route: POST /public/answers/by-ids
+exports.getAnswersIds = async (req, res) => {
+  try {
+    const { answerIds } = req.body;
+
+    // Validate input
+    if (!Array.isArray(answerIds) || answerIds.length === 0) {
+      return res.status(400).json({ message: "Invalid or empty answer IDs" });
+    }
+
+    // Fetch answers matching the provided IDs
+    const answers = await Answer.find({ _id: { $in: answerIds } });
+
+    // Return the answers
+    res.status(200).json(answers);
+  } catch (error) {
+    console.error("Error fetching answers by IDs:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
