@@ -1,6 +1,8 @@
 const Answer = require("../models/Answer");
 const Question = require("../models/Question");
+const UserCollection = require("../models/UserCollection");
 
+// create a new answer
 exports.addAnswer = async (req, res) => {
   try {
     const { questionId, user, content, avatar } = req.body;
@@ -14,6 +16,7 @@ exports.addAnswer = async (req, res) => {
     if (!question) {
       return res.status(404).json({ message: "Question not found." });
     }
+
     // Create new answer
     const newAnswer = new Answer({
       questionId,
@@ -27,11 +30,28 @@ exports.addAnswer = async (req, res) => {
       savedBy: [],
     });
 
-    await newAnswer.save();
+    await newAnswer.save(); // Save the answer
 
     // Push answer reference into the corresponding question
-    question.answers.push(newAnswer._id);
+    question.answers.unshift(newAnswer._id);
     await question.save();
+
+    // Find or create UserCollection for this user
+    let userCollection = await UserCollection.findOne({ accountUsername: user });
+
+    if (!userCollection) {
+      userCollection = new UserCollection({
+        accountUsername: user,
+        savedPosts: [],
+        savedAnswers: [],
+        myPosts: [],
+        myAnswers: [],
+      });
+    }
+
+    // Add the new answer to "myAnswers" (push only the _id)
+    userCollection.myAnswers.push(newAnswer._id);
+    await userCollection.save();
 
     res.status(201).json(newAnswer);
   } catch (error) {

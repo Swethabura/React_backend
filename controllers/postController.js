@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const UserCollection = require("../models/UserCollection");
 
 // to create a new post
 exports.createPost = async (req, res) => {
@@ -19,7 +20,25 @@ exports.createPost = async (req, res) => {
       comments: [],
     });
 
-    await newPost.save();
+    await newPost.save(); // Save post in the Post model
+
+    // Find or create UserCollection for this user
+    let userCollection = await UserCollection.findOne({ accountUsername: user });
+
+    if (!userCollection) {
+      userCollection = new UserCollection({
+        accountUsername: user,
+        savedPosts: [],
+        savedAnswers: [],
+        myPosts: [],
+        myAnswers: [],
+      });
+    }
+
+    // Add the new post to "myPosts"
+    userCollection.myPosts.unshift(newPost._id);
+    await userCollection.save();
+
     res.status(201).json(newPost);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,7 +48,7 @@ exports.createPost = async (req, res) => {
 // to fetch all the posts
 exports.getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find().sort({ createdAt: -1 });
     res.json(posts);
   } catch (error) {
     res.status(500).json({ message: error.message });

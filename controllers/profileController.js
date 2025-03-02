@@ -21,7 +21,6 @@ exports.getProfileData = async (req, res) => {
   }
 };
 
-
 // Update profile
 exports.addProfileData = async (req, res) => {
   try {
