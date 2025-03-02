@@ -8,9 +8,7 @@ const UserProfile = new mongoose.Schema({
   address: { type: String },
   dob: { type: Date },
   profilePic: { type: String },
-  gender: { type: String, enum: ["Male", "Female", "Other"], required: true }, // Added gender field
-  savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
-  myPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  gender: { type: String, enum: ["Male", "Female", "Other"], required: true } // Added gender field
 });
 
 module.exports = mongoose.model("Profile", UserProfile);
