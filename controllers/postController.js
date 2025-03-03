@@ -32,6 +32,7 @@ exports.createPost = async (req, res) => {
         savedAnswers: [],
         myPosts: [],
         myAnswers: [],
+        myQuestions: [],
       });
     }
 

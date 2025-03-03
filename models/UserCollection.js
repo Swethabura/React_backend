@@ -5,6 +5,8 @@ const UserSchema = new mongoose.Schema({
   savedPosts: [{ type: Object,},],
   savedAnswers: [{type: Object, },],
   myPosts: [{type: Object,}],
-  myAnswers: [{type: Object,}],});
+  myAnswers: [{type: Object,}],
+  myQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }], 
+});
 
 module.exports = mongoose.model("UserCollection", UserSchema);

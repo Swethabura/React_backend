@@ -2,6 +2,7 @@ const UserCollection = require("../models/UserCollection");
 const UserProfile = require("../models/Profile");
 const Post = require("../models/Post");
 const Answer = require("../models/Answer");
+const Question = require("../models/Question");
 
 // Fetch user collection (saved posts, saved answers, my posts, my answers)
 exports.getUserCollection = async (req, res) => {
@@ -24,6 +25,7 @@ exports.getUserCollection = async (req, res) => {
         savedAnswers: [],
         myPosts: [],
         myAnswers: [],
+        myQuestions: [],
       });
     }
 
@@ -32,6 +34,7 @@ exports.getUserCollection = async (req, res) => {
       savedAnswers: user.savedAnswers,
       myPosts: user.myPosts,
       myAnswers: user.myAnswers,
+      myQuestions: user.myQuestions,
     });
   } catch (error) {
     console.error("Error fetching user collection:", error);
@@ -68,6 +71,7 @@ exports.savePost = async (req, res) => {
         savedAnswers: [],
         myPosts: [],
         myAnswers: [],
+        myQuestions: [],
       });
     }
 
@@ -159,6 +163,7 @@ exports.saveAnswer = async (req, res) => {
         savedAnswers: [],
         myPosts: [],
         myAnswers: [],
+        myQuestions: [],
       });
     }
 
@@ -273,6 +278,41 @@ exports.deleteMyPost = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Error deleting post", error: error.message });
+  }
+};
+
+// To delete question from myQuestions
+exports.deleteMyQuestion = async (req, res) => {
+  try {
+    const { accountUsername, questionId } = req.body;
+
+    if (!accountUsername) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    // Find and delete the question
+    const deletedQuestion = await Question.findByIdAndDelete(questionId);
+    if (!deletedQuestion) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    // Remove questionId from the user's myQuestions
+    const user = await UserCollection.findOneAndUpdate(
+      { accountUsername },
+      { $pull: { myQuestions: questionId } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User collection not found" });
+    }
+
+    res.status(200).json({
+      message: "Question deleted successfully",
+      myQuestions: user.myQuestions,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting question", error: error.message });
   }
 };
 
