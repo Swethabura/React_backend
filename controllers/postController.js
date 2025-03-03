@@ -101,3 +101,20 @@ exports.addPostComment = async (req, res) => {
   }
 };
 
+// DELETE a post by ID
+exports.deletePost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    // Find and delete the post
+    const deletedPost = await Post.findByIdAndDelete(postId);
+
+    if (!deletedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.json({ message: "Post deleted successfully", postId });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting post", error: error.message });
+  }
+};

@@ -239,3 +239,40 @@ exports.getAnswersIds = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// to delete post-id from my-post
+exports.deleteMyPost = async (req, res) => {
+  try {
+    const { accountUsername, postId } = req.body;
+
+    // Ensure accountUsername is provided
+    if (!accountUsername) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+
+    // Find and delete the post
+    const deletedPost = await Post.findByIdAndDelete(postId);
+    if (!deletedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    // Remove postId from the logged-in user's myPosts
+    const user = await UserCollection.findOneAndUpdate(
+      { accountUsername }, // Find user by username
+      { $pull: { myPosts: postId } }, // Remove postId from myPosts
+      { new: true } // Return updated document
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User collection not found" });
+    }
+
+    res.status(200).json({
+      message: "Post deleted successfully",
+      myPosts: user.myPosts, // Return updated myPosts array
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting post", error: error.message });
+  }
+};
+
