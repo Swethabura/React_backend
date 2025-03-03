@@ -56,3 +56,21 @@ exports.getAllQuestions = async (req,res) => {
         res.status(500).json({message: error.message});
     }
 };
+
+// DELETE a post by ID
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    // Find and delete the post
+    const deletedQuestion = await Question.findByIdAndDelete(postId);
+
+    if (!deletedQuestion) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    res.json({ message: "Question deleted successfully", postId });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting post", error: error.message });
+  }
+};

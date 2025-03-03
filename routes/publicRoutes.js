@@ -6,7 +6,7 @@ const {
   addPostComment,
   deletePost,
 } = require("../controllers/postController.js");
-const { getAllQuestions, createQuestion } = require("../controllers/questionController.js");
+const { getAllQuestions, createQuestion, deleteQuestion } = require("../controllers/questionController.js");
 const {
   addAnswer,
   getAnswersByQuestionId,
@@ -15,7 +15,7 @@ const {
 } = require("../controllers/answerController.js");
 const { getProfileData, addProfileData } = require("../controllers/profileController.js"); 
 const uploadRouter = require("./uploads.js");
-const {getUserCollection, savePost, unsavePost, saveAnswer, unsaveAnswer, getAnswersIds, deleteMyPost} = require("../controllers/savedCollectionController.js");
+const {getUserCollection, savePost, unsavePost, saveAnswer, unsaveAnswer, getAnswersIds, deleteMyPost, deleteMyQuestion} = require("../controllers/savedCollectionController.js");
 
 
 const router = express.Router();
@@ -42,6 +42,8 @@ router.post("/user-collection/unsave-answer", unsaveAnswer);
 router.post("/answers/by-ids", getAnswersIds);
 router.delete("/post/:postId", deletePost);
 router.delete("/posts/delete", deleteMyPost);
+router.delete("/question/:postId", deleteQuestion);
+router.delete("/question/deleteQuestion", deleteMyQuestion);
 
 
 // Mount the uploadRouter under /profile-pic
