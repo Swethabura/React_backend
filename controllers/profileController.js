@@ -1,6 +1,4 @@
 const UserProfile = require("../models/Profile");
-const Post = require("../models/Post");
-const Answer = require("../models/Answer");
 
 // Fetch profile
 exports.getProfileData = async (req, res) => {
@@ -31,14 +29,14 @@ exports.addProfileData = async (req, res) => {
     if (profile) {
       const updatedData = { username, gender, ...restData };
 
-      // Ensure profilePic is a valid string URL
+      // Validate profilePic (Ensure it's a Base64 string)
       if (profilePic && typeof profilePic !== "string") {
         return res.status(400).json({ message: "Invalid profile picture format" });
       }
 
       profile = await UserProfile.findOneAndUpdate(
         { accountUsername },
-        { ...updatedData, profilePic: profilePic || profile.profilePic }, // Preserve old pic if not provided
+        { ...updatedData, profilePic: profilePic || profile.profilePic }, // Keep old pic if not provided
         { new: true }
       );
 
@@ -50,7 +48,7 @@ exports.addProfileData = async (req, res) => {
       accountUsername,
       username,
       gender,
-      profilePic: typeof profilePic === "string" ? profilePic : "", // Store only URL
+      profilePic: typeof profilePic === "string" ? profilePic : "", // Store Base64 string
       ...restData,
     });
 
@@ -62,3 +60,4 @@ exports.addProfileData = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+

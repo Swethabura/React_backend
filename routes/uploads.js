@@ -1,33 +1,31 @@
 const express = require("express");
-const multer = require("multer");
-const path = require("path");
-
 const router = express.Router();
+const UserProfile = require("../models/Profile");
 
-// Configure Multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads")); // Ensure correct path
-  },
-  filename: (req, file, cb) => {
-    const filename = `${Date.now()}-${file.originalname}`;
-    cb(null, filename); // Rename file to avoid conflicts
-  },
-});
+router.post("/upload-base64", async (req, res) => {
+  try {
+    const { accountUsername, profilePic } = req.body;
 
-const upload = multer({ storage });
+    if (!profilePic || typeof profilePic !== "string") {
+      return res.status(400).json({ message: "Invalid profile picture format" });
+    }
 
-router.post("/upload-url", upload.single("profilePic"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
+    // Update the profile with the Base64 image
+    const profile = await UserProfile.findOneAndUpdate(
+      { accountUsername },
+      { profilePic },
+      { new: true }
+    );
+
+    if (!profile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    res.json({ message: "Profile picture updated successfully", profilePic: profile.profilePic });
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  const fileUrl = `/public/uploads/${req.file.filename}`; // Correct path
-
-  res.json({
-    message: "File uploaded successfully",
-    filePath: fileUrl, // Return frontend-friendly URL
-  });
 });
 
 module.exports = router;
