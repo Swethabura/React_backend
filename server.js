@@ -7,6 +7,13 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const corsOptions = {
+    origin: ["http://localhost:5173", "https://devconnect-reactproject.vercel.app"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
+app.use(cors(corsOptions));
 app.use(cors());
 app.use(express.json({ limit: "10mb" })); // Increase JSON payload limit
 app.use(express.urlencoded({ limit: "10mb", extended: true })); // Increase URL-encoded payload limit
