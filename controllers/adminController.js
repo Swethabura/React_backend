@@ -3,7 +3,7 @@ const Post = require("../models/Post");
 const Question = require("../models/Question");
 const Answer = require("../models/Answer");
 
-export const getAdminStats = async() => {
+exports.getAdminStats = async() => {
     try{
         const totalUsers = await User.countDocuments();
         const totalPosts = await Post.countDocuments();
