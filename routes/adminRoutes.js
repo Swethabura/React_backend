@@ -2,7 +2,7 @@ const express = require('express');
 const {protect, adminOnly} = require ("../middleware/authMiddleware.js");
 const {getAllPosts} = require("../controllers/postController.js");
 const {getAllQuestions} = require("../controllers/questionController.js");
-const { getAdminStats } = require('../controllers/adminController.js');
+const { getAdminStats, deletePost, deleteQuestion } = require('../controllers/adminController.js');
 
 const router = express.Router();
 
@@ -18,5 +18,7 @@ router.get("/posts", protect,adminOnly,getAllPosts);
 router.get("/questions", protect, adminOnly, getAllQuestions);
 
 router.get("/stats",protect,adminOnly,getAdminStats);
+router.delete("/questions/:id", protect,adminOnly,deleteQuestion);
+router.delete("/posts/:id", protect,adminOnly,deletePost);
 
 module.exports = router;
