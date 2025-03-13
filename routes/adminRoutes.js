@@ -12,10 +12,10 @@ router.get("/dashboard", protect, adminOnly, (req,res)=>{
 });
 
 // Fetch all posts (Admin only)
-router.get("/posts", protect,adminOnly,getAllPosts);
+router.get("/adminPosts", protect,adminOnly,getAllPosts);
 
 // Fetch all questions (Admin only)
-router.get("/questions", protect, adminOnly, getAllQuestions);
+router.get("/adminQuestions", protect, adminOnly, getAllQuestions);
 
 router.get("/stats",protect,adminOnly,getAdminStats);
 router.delete("/questions/:id", protect,adminOnly,deleteQuestion);
