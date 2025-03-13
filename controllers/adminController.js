@@ -60,3 +60,40 @@ exports.deleteQuestion = async (req, res) => {
     res.status(500).json({ message: "Error deleting question", error });
   }
 };
+
+// Get all users with optional search (by username or email)
+exports.getAllUsers = async (req, res) => {
+  try {
+    const { search } = req.query;
+    let query = {};
+
+    if (search) {
+      query = {
+        $or: [
+          { username: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } }
+        ],
+      };
+    }
+
+    const users = await User.find(query).select("-password"); // Exclude password
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Delete a user by ID
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
