@@ -19,7 +19,7 @@ exports.getProfileData = async (req, res) => {
   }
 };
 
-// Update profile
+// Update or Create Profile
 exports.addProfileData = async (req, res) => {
   try {
     const { accountUsername, gender, username, profilePic, ...restData } = req.body;
@@ -27,28 +27,28 @@ exports.addProfileData = async (req, res) => {
     let profile = await UserProfile.findOne({ accountUsername });
 
     if (profile) {
+      // Update the existing profile
       const updatedData = { username, gender, ...restData };
 
-      // Validate profilePic (Ensure it's a Base64 string)
       if (profilePic && typeof profilePic !== "string") {
         return res.status(400).json({ message: "Invalid profile picture format" });
       }
 
       profile = await UserProfile.findOneAndUpdate(
         { accountUsername },
-        { ...updatedData, profilePic: profilePic || profile.profilePic }, // Keep old pic if not provided
+        { ...updatedData, profilePic: profilePic || profile.profilePic },
         { new: true }
       );
 
       return res.json({ message: "Profile updated successfully", profile });
     }
 
-    // If profile doesn't exist, create a new one
+    // Create a new profile (Edge Case Handling)
     const newProfile = new UserProfile({
       accountUsername,
       username,
-      gender,
-      profilePic: typeof profilePic === "string" ? profilePic : "", // Store Base64 string
+      gender: gender || "",
+      profilePic: typeof profilePic === "string" ? profilePic : "",
       ...restData,
     });
 
@@ -60,4 +60,5 @@ exports.addProfileData = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 

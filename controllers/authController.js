@@ -1,6 +1,11 @@
 const User = require("../models/User.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const UserProfile = require("../models/Profile.js")
+
+const bcrypt = require("bcrypt");
+const User = require("../models/User");
+const UserProfile = require("../models/UserProfile");
 
 exports.register = async (req, res) => {
   const { username, password, email } = req.body;
@@ -14,7 +19,7 @@ exports.register = async (req, res) => {
     let emailExists = await User.findOne({ email });
     if (emailExists) return res.status(400).json({ msg: "Email already exists!" });
 
-    // Hash the password before saving to database
+    // Hash the password before saving to the database
     const salt = await bcrypt.genSalt(14);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -28,13 +33,26 @@ exports.register = async (req, res) => {
 
     await user.save();
 
-    res.status(200).json({ msg: "User registered successfully!" });
+    // **Create a default user profile**
+    const userProfile = new UserProfile({
+      accountUsername: username, // Link profile to the user
+      username, // Same as the user's username
+      gender: "", // Default empty, can be updated later
+      profilePic: "", // Default empty, can be updated later
+      education: "",
+      address: "",
+      dob: null,
+      email, // Store email as part of the profile
+    });
+
+    await userProfile.save();
+
+    res.status(200).json({ msg: "User registered successfully!", profile: userProfile });
   } catch (err) {
-    console.error("Register Error: ", err); 
+    console.error("Register Error: ", err);
     res.status(500).json({ msg: "Server error, please try again later!" });
   }
 };
-
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
