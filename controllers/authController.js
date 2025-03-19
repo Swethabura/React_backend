@@ -60,3 +60,15 @@ exports.login = async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 };
+
+// handle the guest admin 
+exports.guestAdminLogin = async(req,res) => {
+  const user = {
+    username: "AdminGuest",
+    role: "admin",
+  };
+  // Generate a temporary token with limited privileges
+  const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+  res.status(200).json({ token, user });
+}
