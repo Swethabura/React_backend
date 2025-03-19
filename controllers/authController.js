@@ -34,7 +34,7 @@ exports.register = async (req, res) => {
     const userProfile = new UserProfile({
       accountUsername: username, // Link profile to the user
       username, // Same as the user's username
-      gender: "", // Default empty, can be updated later
+      gender: "Other", // Default other, can be updated later
       profilePic: "", // Default empty, can be updated later
       education: "",
       address: "",
